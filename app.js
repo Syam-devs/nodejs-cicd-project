@@ -4,7 +4,7 @@ const app=express();
 
 app.get("/",(req,res)=>{
 res.status(200).send(
-"DevOps CI/CD Project Running Successfully"
+"DevOps CI-CD Project Running Successfully"
 );
 });
 
