@@ -1,0 +1,64 @@
+stages:
+  - install
+  - test
+  - docker
+  - deploy
+
+variables:
+  IMAGE_NAME: $DOCKER_USERNAME/nodejs-cicd
+
+cache:
+ paths:
+   - node_modules/
+
+install_dependencies:
+ stage: install
+ image: node:18
+
+ script:
+   - npm install
+
+ artifacts:
+   paths:
+     - node_modules/
+
+test_application:
+ stage: test
+ image: node:18
+
+ dependencies:
+   - install_dependencies
+
+ script:
+   - npm test
+
+docker_build_push:
+ stage: docker
+ image: docker:latest
+
+ services:
+   - docker:dind
+
+ before_script:
+   - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+
+ script:
+   - docker build -t $IMAGE_NAME:$CI_COMMIT_SHORT_SHA .
+   - docker tag $IMAGE_NAME:$CI_COMMIT_SHORT_SHA $IMAGE_NAME:latest
+   - docker push $IMAGE_NAME:$CI_COMMIT_SHORT_SHA
+   - docker push $IMAGE_NAME:latest
+
+deploy:
+ stage: deploy
+
+ tags:
+   - ubuntu
+   - docker
+   - deploy
+
+ script:
+   - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+   - docker pull $IMAGE_NAME:latest
+   - docker stop nodeapp || true
+   - docker rm nodeapp || true
+   - docker run -d --name nodeapp -p 3000:3000 --restart always $IMAGE_NAME:latest
