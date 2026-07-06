@@ -437,3 +437,5 @@ The project uses **Jest** and **Supertest** for automated API testing.
 - Developers create and maintain unit and API tests.
 - GitLab CI/CD automatically executes the tests during every pipeline run.
 - Deployments proceed only when all test cases pass successfully.
+
+# gitlab repo : https://gitlab.com/syamasundarraodatti/nodejs-cicd-project
